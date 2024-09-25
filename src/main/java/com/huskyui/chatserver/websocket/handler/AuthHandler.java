@@ -4,13 +4,12 @@ import com.huskyui.chatserver.websocket.common.AttrConstants;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AuthHandler extends ChannelInboundHandlerAdapter {
@@ -26,8 +25,14 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof FullHttpRequest){
             // check request
             FullHttpRequest httpRequest = (FullHttpRequest) msg;
-            HttpHeaders headers = httpRequest.headers();
-            String token = headers.get("token");
+            String uri = httpRequest.uri();
+            QueryStringDecoder queryStringDecoder = new QueryStringDecoder(uri);
+            Map<String, List<String>> parameters = queryStringDecoder.parameters();
+            List<String> tokenList = parameters.get("token");
+            String token = null;
+            if (!CollectionUtils.isEmpty(tokenList)){
+                token = tokenList.get(0);
+            }
             String userId = getUserIdByToken(token);
             if (StringUtils.isEmpty(userId)){
                 sendUnauthorizedResponse(ctx);
