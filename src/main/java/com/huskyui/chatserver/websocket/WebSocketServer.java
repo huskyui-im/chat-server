@@ -1,5 +1,7 @@
 package com.huskyui.chatserver.websocket;
 
+import com.huskyui.chatserver.model.User;
+import com.huskyui.chatserver.service.UserService;
 import com.huskyui.chatserver.websocket.handler.AuthHandler;
 import com.huskyui.chatserver.websocket.handler.MyWebSocketHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -17,8 +19,13 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketSe
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+
 @Component
 public class WebSocketServer {
+
+    @Resource
+    private UserService userService;
 
     @Bean
     public void initWebSocketServer(){
@@ -34,7 +41,7 @@ public class WebSocketServer {
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast(new HttpServerCodec()); // HTTP 协议解析，用于握手阶段
                             pipeline.addLast(new HttpObjectAggregator(65536));// HTTP 协议解析，用于握手阶段
-                            pipeline.addLast(new AuthHandler());
+                            pipeline.addLast(new AuthHandler(userService));
                             pipeline.addLast(new WebSocketServerProtocolHandler("/ws", null, true,65536*10,false,true)); // WebSocket 握手、控制帧处理
                             pipeline.addLast(new MyWebSocketHandler());
                         }

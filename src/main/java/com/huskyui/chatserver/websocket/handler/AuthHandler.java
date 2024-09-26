@@ -1,5 +1,7 @@
 package com.huskyui.chatserver.websocket.handler;
 
+import com.huskyui.chatserver.model.User;
+import com.huskyui.chatserver.service.UserService;
 import com.huskyui.chatserver.websocket.common.AttrConstants;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,12 +15,11 @@ import java.util.List;
 import java.util.Map;
 
 public class AuthHandler extends ChannelInboundHandlerAdapter {
+    private final UserService userService;
 
-    private final static Map<String,String> tokenMap = new HashMap<String,String>(){{
-       put("abc","huskyui");
-       put("def","zz");
-    }};
-
+    public AuthHandler(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -33,19 +34,19 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
             if (!CollectionUtils.isEmpty(tokenList)){
                 token = tokenList.get(0);
             }
-            String userId = getUserIdByToken(token);
-            if (StringUtils.isEmpty(userId)){
+            User user = getUserIdByToken(token);
+            if (user == null){
                 sendUnauthorizedResponse(ctx);
                 return;
             }
             Channel channel = ctx.channel();
-            channel.attr(AttrConstants.USER_ID).set(userId);
+            channel.attr(AttrConstants.USER_ID).set(user.getUsername());
         }
         super.channelRead(ctx, msg);
     }
 
-    private String getUserIdByToken(String token) {
-        return tokenMap.get(token);
+    private User getUserIdByToken(String token) {
+        return userService.getUserInfoByToken(token);
     }
 
 
