@@ -16,12 +16,16 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
 @Component
+@Slf4j
 public class WebSocketServer {
 
     @Resource
@@ -41,15 +45,17 @@ public class WebSocketServer {
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast(new HttpServerCodec()); // HTTP 协议解析，用于握手阶段
                             pipeline.addLast(new HttpObjectAggregator(65536));// HTTP 协议解析，用于握手阶段
+                            pipeline.addLast(new LoggingHandler(LogLevel.INFO));
                             pipeline.addLast(new AuthHandler(userService));
                             pipeline.addLast(new WebSocketServerProtocolHandler("/ws", null, true,65536*10,false,true)); // WebSocket 握手、控制帧处理
                             pipeline.addLast(new MyWebSocketHandler());
                         }
                     });
             ChannelFuture f = b.bind(8888).sync();
+            log.info("websocket server started!!!");
             f.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            log.info("websocket server started!!!");
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
