@@ -1,5 +1,9 @@
 package com.huskyui.chatserver.websocket.handler;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.huskyui.chatserver.model.Message;
+import com.huskyui.chatserver.service.UserService;
+import com.huskyui.chatserver.utils.JsonUtils;
 import com.huskyui.chatserver.websocket.common.AttrConstants;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -12,6 +16,11 @@ import java.util.Map;
 
 public class MyWebSocketHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
+    private UserService userService;
+
+    public MyWebSocketHandler(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame o) throws Exception {
@@ -23,7 +32,14 @@ public class MyWebSocketHandler extends SimpleChannelInboundHandler<WebSocketFra
         if (o instanceof TextWebSocketFrame){
             TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) o;
             String userId = ctx.channel().attr(AttrConstants.USER_ID).get();
-            ctx.channel().writeAndFlush(new TextWebSocketFrame("收到"+userId+"发送的"+textWebSocketFrame.text()));
+            String text = textWebSocketFrame.text();
+            Message message = JsonUtils.stringToObject(text, new TypeReference<Message>() {
+            });
+            if (message == null){
+                return;
+            }
+            message.setMsg(String.format("%s:%s", userId, message.getMsg()));
+            userService.groupPush(JsonUtils.objectToJson(message));
         }
     }
 

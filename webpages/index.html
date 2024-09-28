@@ -16,10 +16,8 @@
 
 <!-- 登录表单 -->
 <div id="login-form">
-    <label for="username">Username:</label>
-    <input type="text" id="username">
-    <label for="password">Password:</label>
-    <input type="password" id="password">
+    <label for="token">Username:</label>
+    <input type="text" id="token">
     <button onclick="login()">Login</button>
 </div>
 
@@ -36,30 +34,9 @@
 
     // 登录函数
     function login() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+        token = document.getElementById('token').value;
+        connectWebSocket();
 
-        // 模拟发送登录请求（替换为实际的API URL）
-        fetch('https://your-api.com/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.token) {
-                    token = data.token;
-                    document.getElementById('login-form').style.display = 'none';
-                    document.getElementById('chat-interface').style.display = 'block';
-                    connectWebSocket();
-                } else {
-                    alert('Login failed!');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error logging in.');
-            });
     }
 
     // 连接 WebSocket
@@ -70,7 +47,7 @@
         }
 
         // 替换为你的 WebSocket 服务器 URL
-        ws = new WebSocket('wss://your-websocket-server.com/chat?token=' + token);
+        ws = new WebSocket('ws://localhost:8888/ws?token=' + token);
 
         ws.onopen = function() {
             console.log('Connected to WebSocket');

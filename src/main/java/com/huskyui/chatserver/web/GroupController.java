@@ -11,15 +11,15 @@ import javax.annotation.Resource;
 @RequestMapping("/group")
 public class GroupController {
 
-    @Resource
-    private RedisCommands<String,String> redisCommands;
+//    @Resource
+//    private RedisCommands<String,String> redisCommands;
 
-    @GetMapping("/create")
-    public String create(@RequestParam(value = "groupName",required = false)String groupName){
-        if (StringUtils.isEmpty(groupName)){
-
-        }
-    }
+//    @GetMapping("/create")
+//    public String create(@RequestParam(value = "groupName",required = false)String groupName){
+//        if (StringUtils.isEmpty(groupName)){
+//
+//        }
+//    }
 
 
 }

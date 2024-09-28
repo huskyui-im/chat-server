@@ -41,8 +41,15 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
             }
             Channel channel = ctx.channel();
             channel.attr(AttrConstants.USER_ID).set(user.getUsername());
+            userService.addChannel(channel);
         }
         super.channelRead(ctx, msg);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        userService.removeChannel(ctx.channel());
+        super.channelInactive(ctx);
     }
 
     private User getUserIdByToken(String token) {

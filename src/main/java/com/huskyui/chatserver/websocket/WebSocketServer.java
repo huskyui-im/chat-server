@@ -45,10 +45,10 @@ public class WebSocketServer {
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast(new HttpServerCodec()); // HTTP 协议解析，用于握手阶段
                             pipeline.addLast(new HttpObjectAggregator(65536));// HTTP 协议解析，用于握手阶段
-                            pipeline.addLast(new LoggingHandler(LogLevel.INFO));
+//                            pipeline.addLast(new LoggingHandler(LogLevel.INFO));
                             pipeline.addLast(new AuthHandler(userService));
                             pipeline.addLast(new WebSocketServerProtocolHandler("/ws", null, true,65536*10,false,true)); // WebSocket 握手、控制帧处理
-                            pipeline.addLast(new MyWebSocketHandler());
+                            pipeline.addLast(new MyWebSocketHandler(userService));
                         }
                     });
             ChannelFuture f = b.bind(8888).sync();
