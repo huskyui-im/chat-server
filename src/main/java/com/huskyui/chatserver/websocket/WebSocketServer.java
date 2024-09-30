@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 @Component
@@ -31,10 +32,11 @@ public class WebSocketServer {
     @Resource
     private UserService userService;
 
+    EventLoopGroup bossGroup = new NioEventLoopGroup();
+    EventLoopGroup workerGroup = new NioEventLoopGroup();
+
     @Bean
     public void initWebSocketServer(){
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
@@ -53,13 +55,15 @@ public class WebSocketServer {
                     });
             ChannelFuture f = b.bind(8888).sync();
             log.info("websocket server started!!!");
-            f.channel().closeFuture().sync();
         } catch (Exception e) {
             log.info("websocket server started!!!");
-        } finally {
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
         }
+    }
+
+    @PreDestroy
+    public void destory(){
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
     }
 
 }

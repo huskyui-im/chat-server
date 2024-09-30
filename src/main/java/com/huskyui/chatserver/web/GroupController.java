@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("/group")
 public class GroupController {
-
+//
 //    @Resource
 //    private RedisCommands<String,String> redisCommands;
 
