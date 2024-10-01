@@ -2,6 +2,7 @@ package com.huskyui.chatserver.service;
 
 import com.google.common.collect.ImmutableMap;
 import com.huskyui.chatserver.model.User;
+import com.huskyui.chatserver.utils.RemoteCacheUtils;
 import com.huskyui.chatserver.websocket.common.AttrConstants;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
@@ -9,22 +10,30 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
 public class UserService {
-    private final static ImmutableMap<String/*token*/, User/*用户信息*/> tokenInfoMap =
-            ImmutableMap.of(
-                    "123",new User("huskyui"),
-                    "456",new User("zz")
-            );
 
-    private final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    @Resource
+    private RemoteCacheUtils remoteCacheUtils;
+
+    private static final ConcurrentHashMap<String/*channelId*/,Channel/**/>
+
+
 
 
     public User getUserInfoByToken(String token) {
-        return tokenInfoMap.getOrDefault(token, null);
+        String userName = remoteCacheUtils.get(token);
+        if (StringUtils.isEmpty(userName)){
+            return null;
+        }
+        return new User(userName);
     }
 
     public void addChannel(Channel channel){
