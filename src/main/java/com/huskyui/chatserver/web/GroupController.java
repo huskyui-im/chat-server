@@ -1,5 +1,7 @@
 package com.huskyui.chatserver.web;
 
+import com.huskyui.chatserver.model.Result;
+import com.huskyui.chatserver.service.GroupService;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.apache.commons.lang3.StringUtils;
@@ -10,16 +12,14 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("/group")
 public class GroupController {
-//
-//    @Resource
-//    private RedisCommands<String,String> redisCommands;
 
-//    @GetMapping("/create")
-//    public String create(@RequestParam(value = "groupName",required = false)String groupName){
-//        if (StringUtils.isEmpty(groupName)){
-//
-//        }
-//    }
+    @Resource
+    private GroupService groupService;
+
+    @GetMapping("/list")
+    public Result create(){
+        return groupService.getAllGroup();
+    }
 
 
 }

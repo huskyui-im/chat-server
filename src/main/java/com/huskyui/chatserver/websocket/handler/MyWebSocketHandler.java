@@ -5,6 +5,7 @@ import com.huskyui.chatserver.model.Message;
 import com.huskyui.chatserver.service.UserService;
 import com.huskyui.chatserver.utils.JsonUtils;
 import com.huskyui.chatserver.websocket.common.AttrConstants;
+import com.huskyui.chatserver.websocket.common.OpTypeConstants;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -38,8 +39,18 @@ public class MyWebSocketHandler extends SimpleChannelInboundHandler<WebSocketFra
             if (message == null){
                 return;
             }
-            message.setMsg(String.format("%s:%s", userId, message.getMsg()));
-            userService.groupPush(JsonUtils.objectToJson(message));
+            if (message.getOpType() == OpTypeConstants.JOIN_GROUP) {
+                userService.groupPushHistoryMsg(message.getMessage(),ctx.channel());
+            }else if(message.getOpType() == OpTypeConstants.SEND_MSG){
+                message.setMessage(String.format("%s:%s", userId, message.getMessage()));
+                String msg = JsonUtils.objectToJson(message);
+                userService.groupPush(msg);
+                userService.addMsg("group1",msg);
+            }else if (message.getOpType() == OpTypeConstants.CREATE_GROUP){
+                userService.createGroup(message.getGroup());
+            }
+
+
         }
     }
 

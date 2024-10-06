@@ -7,4 +7,6 @@ public class OpTypeConstants {
 
     public static int SEND_MSG = 3;
 
+    public static int CREATE_GROUP = 4;
+
 }

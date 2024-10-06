@@ -19,9 +19,4 @@ public class AuthController {
         return authService.login(request.getUsername());
     }
 
-    @GetMapping("/hello")
-    public String hello(){
-        return "hello";
-    }
-
 }

@@ -8,6 +8,6 @@ public class Message {
 
     String group;
 
-    String msg;
+    String message;
 
 }

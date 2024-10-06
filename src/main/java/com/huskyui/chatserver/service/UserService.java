@@ -12,8 +12,10 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -23,9 +25,9 @@ public class UserService {
     @Resource
     private RemoteCacheUtils remoteCacheUtils;
 
-    private static final ConcurrentHashMap<String/*channelId*/,Channel/**/>
+    private static final ConcurrentHashMap<String/*channelId*/,Channel/*Channel*/> channelMap = new ConcurrentHashMap<>();
 
-
+    private static final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
 
     public User getUserInfoByToken(String token) {
@@ -37,12 +39,14 @@ public class UserService {
     }
 
     public void addChannel(Channel channel){
-        channelGroup.add(channel);
+        String channelId = channel.id().asLongText();
+        channelMap.put(channelId,channel);
         log.info("用户 {} 登录，远程地址 {}",channel.attr(AttrConstants.USER_ID).get(),channel.remoteAddress());
     }
 
     public void removeChannel(Channel channel){
-        channelGroup.remove(channel);
+        String channelId = channel.id().asLongText();
+        channelMap.remove(channelId);
         log.info("用户 {} 离开，远程地址 {}",channel.attr(AttrConstants.USER_ID).get(),channel.remoteAddress());
     }
 
@@ -50,5 +54,22 @@ public class UserService {
         channelGroup.writeAndFlush(new TextWebSocketFrame(msg));
     }
 
+    public void addMsg(String group,String msg){
+        remoteCacheUtils.sendMsgToGroup(group,msg);
+    }
 
+    public void groupPushHistoryMsg(String groupName,Channel channel){
+        List<String> historyMessageList = remoteCacheUtils.historyMessageList(groupName);
+        if (!CollectionUtils.isEmpty(historyMessageList)){
+            for (String msg : historyMessageList) {
+                channel.writeAndFlush(new TextWebSocketFrame(msg));
+            }
+        }
+    }
+
+
+    public void createGroup(String groupName) {
+        // create zset groupName
+        remoteCacheUtils.createGroup(groupName);
+    }
 }
