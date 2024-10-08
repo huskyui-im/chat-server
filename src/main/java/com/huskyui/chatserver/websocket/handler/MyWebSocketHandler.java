@@ -25,28 +25,29 @@ public class MyWebSocketHandler extends SimpleChannelInboundHandler<WebSocketFra
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame o) throws Exception {
-        handleWebSocketFrame(ctx,o);
+        handleWebSocketFrame(ctx, o);
 
     }
 
     private void handleWebSocketFrame(ChannelHandlerContext ctx, Object o) {
-        if (o instanceof TextWebSocketFrame){
+        if (o instanceof TextWebSocketFrame) {
             TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) o;
             String userId = ctx.channel().attr(AttrConstants.USER_ID).get();
             String text = textWebSocketFrame.text();
             Message message = JsonUtils.stringToObject(text, new TypeReference<Message>() {
             });
-            if (message == null){
+            if (message == null) {
                 return;
             }
             if (message.getOpType() == OpTypeConstants.JOIN_GROUP) {
-                userService.groupPushHistoryMsg(message.getMessage(),ctx.channel());
-            }else if(message.getOpType() == OpTypeConstants.SEND_MSG){
+                userService.joinGroup(message.getGroup(), ctx.channel());
+                userService.groupPushHistoryMsg(message.getGroup(), ctx.channel());
+            } else if (message.getOpType() == OpTypeConstants.SEND_MSG) {
                 message.setMessage(String.format("%s:%s", userId, message.getMessage()));
                 String msg = JsonUtils.objectToJson(message);
-                userService.groupPush(msg);
-                userService.addMsg("group1",msg);
-            }else if (message.getOpType() == OpTypeConstants.CREATE_GROUP){
+                userService.groupPush(message.getGroup(),msg);
+                userService.addMsg(message.getGroup(), msg);
+            } else if (message.getOpType() == OpTypeConstants.CREATE_GROUP) {
                 userService.createGroup(message.getGroup());
             }
 
