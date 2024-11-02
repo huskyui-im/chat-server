@@ -3,7 +3,6 @@ package com.huskyui.chatserver.web;
 import com.huskyui.chatserver.model.Result;
 import com.huskyui.chatserver.model.auth.LoginRequest;
 import com.huskyui.chatserver.service.AuthService;
-import com.huskyui.chatserver.service.AuthService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
