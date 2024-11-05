@@ -24,10 +24,9 @@ public class UploadUtils {
                     .stream(stream, -1, 10485760)
                     .build());
             // todo 只返回bucketName+fileName;再提供一个图片地址的根目录（接口），防止以后切换
-            return "fileName";
-
+            return String.format("/%s/%s",bucketName,fileName);
         }catch (Exception e){
-
+            return null;
         }
     }
 
