@@ -49,6 +49,11 @@ public class MyWebSocketHandler extends SimpleChannelInboundHandler<WebSocketFra
                 userService.addMsg(message.getGroup(), msg);
             } else if (message.getOpType() == OpTypeConstants.CREATE_GROUP) {
                 userService.createGroup(message.getGroup());
+            }else if (message.getOpType() == OpTypeConstants.SEND_IMAGE){
+                message.setMessage(message.getMessage());
+                String msg = JsonUtils.objectToJson(message);
+                userService.groupPush(message.getGroup(),msg);
+                userService.addMsg(message.getGroup(),msg);
             }
 
 

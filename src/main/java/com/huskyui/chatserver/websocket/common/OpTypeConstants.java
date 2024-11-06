@@ -9,4 +9,6 @@ public class OpTypeConstants {
 
     public static int CREATE_GROUP = 4;
 
+    public static int SEND_IMAGE = 5;
+
 }
