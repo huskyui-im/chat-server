@@ -24,7 +24,7 @@ public class UploadController {
     public Result uploadImage(@RequestParam MultipartFile file) {
         try {
             String imgUrl = uploadUtils.updateImage("test-bucket", IdGenUtils.id(), file.getInputStream());
-            if (StringUtils.isEmpty(imgUrl)){
+            if (StringUtils.isNotEmpty(imgUrl)){
                 return Result.ok(imgUrl);
             }
         }catch (Exception e){
