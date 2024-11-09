@@ -43,7 +43,8 @@ public class MyWebSocketHandler extends SimpleChannelInboundHandler<WebSocketFra
                 userService.joinGroup(message.getGroup(), ctx.channel());
                 userService.groupPushHistoryMsg(message.getGroup(), ctx.channel());
             } else if (message.getOpType() == OpTypeConstants.SEND_MSG) {
-                message.setMessage(String.format("%s:%s", userId, message.getMessage()));
+                message.setMessage(message.getMessage());
+                message.setSendUser(userId);
                 String msg = JsonUtils.objectToJson(message);
                 userService.groupPush(message.getGroup(),msg);
                 userService.addMsg(message.getGroup(), msg);
@@ -51,12 +52,11 @@ public class MyWebSocketHandler extends SimpleChannelInboundHandler<WebSocketFra
                 userService.createGroup(message.getGroup());
             }else if (message.getOpType() == OpTypeConstants.SEND_IMAGE){
                 message.setMessage(message.getMessage());
+                message.setSendUser(userId);
                 String msg = JsonUtils.objectToJson(message);
                 userService.groupPush(message.getGroup(),msg);
                 userService.addMsg(message.getGroup(),msg);
             }
-
-
         }
     }
 

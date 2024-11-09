@@ -10,4 +10,6 @@ public class Message {
 
     String message;
 
+    String sendUser;
+
 }
