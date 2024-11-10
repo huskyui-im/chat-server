@@ -24,4 +24,7 @@ public interface ChatUserMapper {
     int updateByPrimaryKey(ChatUser record);
 
     ChatUser selectByUsername(@Param("username") String username);
+
+
+    ChatUser selectByUsernameAndPassword(@Param("username") String username,@Param("password") String encrypt);
 }

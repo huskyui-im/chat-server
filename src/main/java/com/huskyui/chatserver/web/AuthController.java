@@ -16,8 +16,9 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
+    @RequestLog
     public Result login(@RequestBody LoginRequest request){
-        return authService.login(request.getUsername());
+        return authService.login(request);
     }
 
 

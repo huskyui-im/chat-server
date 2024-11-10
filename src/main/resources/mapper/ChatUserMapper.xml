@@ -34,6 +34,15 @@
         where username = #{username}
         limit 1
     </select>
+    <select id="selectByUsernameAndPassword" resultType="com.huskyui.chatserver.domain.ChatUser">
+        select id,username,
+               avatar,row_status
+            from chat_user
+        where username = #{username}
+        and encrypt_password = #{password}
+        and row_status = 1
+        limit 1
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from chat_user

@@ -1,9 +1,11 @@
 package com.huskyui.chatserver.service;
 
+import com.google.common.collect.ImmutableMap;
 import com.huskyui.chatserver.domain.ChatUser;
 import com.huskyui.chatserver.exception.CommonException;
 import com.huskyui.chatserver.mapper.ChatUserMapper;
 import com.huskyui.chatserver.model.Result;
+import com.huskyui.chatserver.model.auth.LoginRequest;
 import com.huskyui.chatserver.model.auth.RegisterRequest;
 import com.huskyui.chatserver.utils.AESUtils;
 import com.huskyui.chatserver.utils.RemoteCacheUtils;
@@ -12,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -27,10 +30,23 @@ public class AuthService {
     private static final String secretKey = "m5XaUcaYBKAEFJgq";
 
 
-    public Result login(String username) {
+    public Result login(LoginRequest request) {
+        checkLoginParam(request);
+        ChatUser chatUser = chatUserMapper.selectByUsernameAndPassword(
+                request.getUsername(),
+                AESUtils.encrypt(request.getPassword(),secretKey));
+        if (chatUser == null){
+            return Result.fail(2001,"用户不存在");
+        }
         String token = UUID.randomUUID().toString();
-        remoteCacheUtils.set(token,username,60*30);
-        return Result.ok(token);
+        remoteCacheUtils.set(token,chatUser.getUsername(),60*30);
+        return Result.ok(ImmutableMap.of("username",chatUser.getUsername(),"token",token));
+    }
+
+    private void checkLoginParam(LoginRequest request) {
+        if (StringUtils.isAnyEmpty(request.getUsername(),request.getPassword())){
+            throw new CommonException(1001,"入参错误");
+        }
     }
 
 
