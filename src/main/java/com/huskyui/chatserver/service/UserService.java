@@ -1,6 +1,9 @@
 package com.huskyui.chatserver.service;
 
 import com.google.common.collect.ImmutableMap;
+import com.huskyui.chatserver.domain.ChatUser;
+import com.huskyui.chatserver.mapper.ChatUserMapper;
+import com.huskyui.chatserver.model.Result;
 import com.huskyui.chatserver.model.User;
 import com.huskyui.chatserver.utils.RemoteCacheUtils;
 import com.huskyui.chatserver.websocket.common.AttrConstants;
@@ -27,6 +30,9 @@ public class UserService {
 
     @Resource
     private RemoteCacheUtils remoteCacheUtils;
+
+    @Resource
+    private ChatUserMapper chatUserMapper;
 
     private static final ConcurrentHashMap<String/*channelId*/,Channel/*Channel*/> channelMap = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String/*groupId*/,ChannelGroup/*ChannelGroup*/> groupMap = new ConcurrentHashMap<>();
@@ -89,4 +95,15 @@ public class UserService {
         });
     }
 
+    public Result getUserInfoByUserId(String userId) {
+        ChatUser chatUser = chatUserMapper.selectByUsername(userId);
+        if (chatUser == null){
+            return Result.fail(1001,"用户信息不存在");
+        }
+        ImmutableMap<String,String> userInfo = ImmutableMap.of(
+                "id",chatUser.getId().toString(),
+                "username",chatUser.getUsername(),
+                "avatar",chatUser.getAvatar());
+        return Result.ok(userInfo);
+    }
 }
