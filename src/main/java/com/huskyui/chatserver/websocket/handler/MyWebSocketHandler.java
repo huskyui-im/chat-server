@@ -2,6 +2,7 @@ package com.huskyui.chatserver.websocket.handler;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.huskyui.chatserver.model.Message;
+import com.huskyui.chatserver.service.GroupService;
 import com.huskyui.chatserver.service.UserService;
 import com.huskyui.chatserver.utils.JsonUtils;
 import com.huskyui.chatserver.websocket.common.AttrConstants;
@@ -14,13 +15,17 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class MyWebSocketHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private UserService userService;
 
-    public MyWebSocketHandler(UserService userService) {
+    private GroupService groupService;
+
+    public MyWebSocketHandler(UserService userService,GroupService groupService) {
         this.userService = userService;
+        this.groupService = groupService;
     }
 
     @Override
@@ -49,7 +54,10 @@ public class MyWebSocketHandler extends SimpleChannelInboundHandler<WebSocketFra
                 userService.groupPush(message.getGroup(),msg);
                 userService.addMsg(message.getGroup(), msg);
             } else if (message.getOpType() == OpTypeConstants.CREATE_GROUP) {
-                userService.createGroup(message.getGroup());
+                groupService.createGroup(
+                        userId,
+                        message.getGroup(),
+                        Optional.ofNullable(message.getExtendData()).map(t->t.get("avatar")).orElse(""));
             }else if (message.getOpType() == OpTypeConstants.SEND_IMAGE){
                 message.setMessage(message.getMessage());
                 message.setSendUser(userId);
