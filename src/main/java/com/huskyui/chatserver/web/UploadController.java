@@ -64,7 +64,7 @@ public class UploadController {
 
         } catch (IOException e) {
             // 处理异常（如客户端断开连接）
-            log.error("Error sending image", e);
+            log.info("Error sending image");
         }
     }
 
