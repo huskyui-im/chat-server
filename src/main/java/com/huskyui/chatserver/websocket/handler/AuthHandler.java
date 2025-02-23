@@ -7,6 +7,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class AuthHandler extends ChannelInboundHandlerAdapter {
     private final UserService userService;
 
@@ -27,6 +29,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
             // check request
             FullHttpRequest httpRequest = (FullHttpRequest) msg;
             String uri = httpRequest.uri();
+            log.info("uri:{}",uri);
             QueryStringDecoder queryStringDecoder = new QueryStringDecoder(uri);
             Map<String, List<String>> parameters = queryStringDecoder.parameters();
             List<String> tokenList = parameters.get("token");
@@ -34,6 +37,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
             if (!CollectionUtils.isEmpty(tokenList)){
                 token = tokenList.get(0);
             }
+            log.info("token:{}",token);
             User user = getUserIdByToken(token);
             if (user == null){
                 sendUnauthorizedResponse(ctx);
